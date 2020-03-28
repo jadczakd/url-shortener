@@ -1,0 +1,1 @@
+Base hexagonal architecture implementation of a simple service
