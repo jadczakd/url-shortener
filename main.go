@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"syscall"
 
-	h "github.com/tensor-programming/hex-microservice/api"
-	mr "github.com/tensor-programming/hex-microservice/repository/mongo"
-	rr "github.com/tensor-programming/hex-microservice/repository/redis"
+	h "github.com/jadczakd/url-shortener/api"
+	mr "github.com/jadczakd/url-shortener/shortener/repository/mongo"
+	rr "github.com/jadczakd/url-shortener/shortener/repository/redis"
 
 	"github.com/tensor-programming/hex-microservice/shortener"
 )
@@ -72,7 +72,7 @@ func chooseRepo() shortener.RedirectRepository {
 		mongoTimeout, _ := strconv.Atoi(os.Getenv("MONGO_TIMEOUT"))
 		repo, err := mr.NewMongoRepository(mongoURL, mongodb, mongoTimeout)
 		if err != nil {
-			log.Fatal(err)
+			lot.Fatal(err)
 		}
 		return repo
 	}
