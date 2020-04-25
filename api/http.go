@@ -6,11 +6,10 @@ import (
 	"github.com/jadczakd/url-shortener/shortener"
 	"io/ioutil"
 	"log"
-	"net/http"
 
 	"github.com/go-chi/chi"
-	jsonS "github.com/jadczakd/url-shortener/serializer/json"
-	msgPackS "github.com/jadczakd/url-shortener/serializer/msgpack"
+	js "github.com/jadczakd/url-shortener/serializer/json"
+	ms "github.com/jadczakd/url-shortener/serializer/msgpack"
 	"github.com/pkg/errors"
 )
 
@@ -23,7 +22,7 @@ type handler struct {
 	redirectService shortener.RedirectService
 }
 
-func NewHandler(rs shortener.RedirectService) RedirectRepo {
+func NewHandler(rs shortener.RedirectService) RedirectInterface {
 	return &handler{redirectService: rs}
 }
 
@@ -65,6 +64,21 @@ func (h *handler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	redirect, err := h.serializer(contentType).Decode(requestBody)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	err = h.redirectService.Store(redirect)
+	if err != nil {
+		log.Println(err)
+		if errors.Cause(err) == shortener.ErrRedirectInvalid {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	responseBody, err := h.serializer(contentType).Encode(redirect)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

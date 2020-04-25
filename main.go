@@ -12,10 +12,10 @@ import (
 	"syscall"
 
 	h "github.com/jadczakd/url-shortener/api"
-	mr "github.com/jadczakd/url-shortener/shortener/repository/mongo"
-	rr "github.com/jadczakd/url-shortener/shortener/repository/redis"
+	mr "github.com/jadczakd/url-shortener/repository/mongodb"
+	rr "github.com/jadczakd/url-shortener/repository/redis"
 
-	"github.com/tensor-programming/hex-microservice/shortener"
+	"github.com/jadczakd/url-shortener/shortener"
 )
 
 // repo <- service -> serializer -> http
@@ -70,11 +70,12 @@ func chooseRepo() shortener.RedirectRepository {
 		mongoURL := os.Getenv("MONGO_URL")
 		mongodb := os.Getenv("MONGO_DB")
 		mongoTimeout, _ := strconv.Atoi(os.Getenv("MONGO_TIMEOUT"))
-		repo, err := mr.NewMongoRepository(mongoURL, mongodb, mongoTimeout)
+		repo, err := mr.NewRedirectRepository(mongoURL, mongodb, mongoTimeout)
 		if err != nil {
-			lot.Fatal(err)
+			log.Fatal(err)
 		}
 		return repo
 	}
+	log.Println(os.Getenv("URL_DB"))
 	return nil
 }
